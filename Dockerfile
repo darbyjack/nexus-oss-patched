@@ -1,5 +1,5 @@
 # We define 2 versions - one is the version of docker image that we patch, the second is the release branch suffix
-ARG SONATYPE_VERSION=3.36.0
+ARG SONATYPE_VERSION=3.37.0
 ARG SONATYPE_RELEASE=${SONATYPE_VERSION}-01
 
 FROM alpine:latest AS os
@@ -8,11 +8,9 @@ RUN apk add \
   g++ \
   git \
   make \
-  nodejs \
-  npm \
+  build-base \
   openjdk8 \
-  python2 \
-  yarn
+  python2
 
 WORKDIR /opt/sonatype
 # Declare we want to use global SONATYPE_RELEASE from above
@@ -20,8 +18,9 @@ ARG SONATYPE_RELEASE
 # We are only interested in the last commit of specific release
 RUN git clone --branch release-${SONATYPE_RELEASE} --depth 1 https://github.com/sonatype/nexus-public .
 
-RUN sed -i 's/ document.field(P_CREATED_BY_IP, OType.STRING);/ "127.0.0.1";/g' components/nexus-repository/src/main/java/org/sonatype/nexus/repository/storage/AssetEntityAdapter.java
-RUN ./mvnw -T 1C -ntp package -Dmaven.test.skip -DskipTests
+RUN sed -i 's/ document.field(P_CREATED_BY_IP, OType.STRING);/ "0.0.0.0";/g' components/nexus-repository/src/main/java/org/sonatype/nexus/repository/storage/AssetEntityAdapter.java
+RUN sed -i 's/ <version>1.8.0<\/version>/<version>1.12.0<\/version>/g' pom.xml
+RUN ./mvnw -T 1C -ntp clean package -Dmaven.test.skip -DskipTests
 
 
 FROM sonatype/nexus3:${SONATYPE_VERSION}
