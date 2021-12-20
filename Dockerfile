@@ -1,5 +1,5 @@
 # We define 2 versions - one is the version of docker image that we patch, the second is the release branch suffix
-ARG SONATYPE_VERSION=3.37.0
+ARG SONATYPE_VERSION=3.37.1
 ARG SONATYPE_RELEASE=${SONATYPE_VERSION}-01
 
 FROM alpine:latest AS os
